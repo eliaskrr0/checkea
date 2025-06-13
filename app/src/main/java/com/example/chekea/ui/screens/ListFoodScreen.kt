@@ -120,7 +120,7 @@ fun FoodDataTable(
 				// Itera sobre las cabeceras para determinar qué mostrar y en qué orden
 				headers.forEach { header ->
 					val cellText = when (header) {
-						"Nombre del Alimento" -> foodItem.name
+						"Nombre del alimento" -> foodItem.name
 						// Añade más casos aquí cuando tengas más atributos
 						// "Categoría" -> foodItem.category ?: "N/A"
 						// "Fecha de Caducidad" -> foodItem.expiryDate?.toString() ?: "N/A"
