@@ -7,10 +7,16 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.chekea.navigation.AppDestinations
+import com.example.chekea.ui.screens.AddFoodScreen
+import com.example.chekea.ui.screens.ListFoodScreen
+import com.example.chekea.ui.screens.MainScreen
 import com.example.chekea.ui.theme.ChekeaTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,11 +24,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ChekeaTheme {
+            ChekeaTheme { // Un solo ChekeaTheme aquí es suficiente
+                // El NavController se crea aquí para que AppNavigation lo reciba
+                val navController = rememberNavController()
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
+                    // Pasamos el navController y el innerPadding a AppNavigation
+                    AppNavigation(
+                        navController = navController,
+                        modifier = Modifier.padding(innerPadding) // Aplicamos el padding del Scaffold principal
                     )
                 }
             }
@@ -31,17 +40,21 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ChekeaTheme {
-        Greeting("Android")
+fun AppNavigation(navController: NavHostController, modifier: Modifier = Modifier) {
+    // NavHost ahora usa el modifier que contiene el padding del Scaffold de MainActivity
+    NavHost(
+        navController = navController,
+        startDestination = AppDestinations.MAIN_SCREEN,
+        modifier = modifier // Aplicar el modifier aquí
+    ) {
+        composable(AppDestinations.MAIN_SCREEN) {
+            MainScreen(navController = navController)
+        }
+        composable(AppDestinations.ADD_FOOD_SCREEN) {
+            AddFoodScreen(navController = navController)
+        }
+        composable(AppDestinations.LIST_FOOD_SCREEN) {
+            ListFoodScreen(navController = navController)
+        }
     }
 }

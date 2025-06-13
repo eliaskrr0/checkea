@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -56,4 +57,31 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    /* Dependencias de Room */
+    // Room
+    val room_version = "2.6.1" // Revisa la última versión estable de Room
+    implementation(libs.room.runtime)
+    kapt(libs.room.compiler)
+    implementation(libs.room.ktx)
+
+    // Opcional - Test helpers
+    // testImplementation("androidx.room:room-testing:$room_version")
+
+    // Lifecycle components (necesario para ViewModels)
+    implementation(libs.androidx.lifecycle.viewmodel.compose) // Revisa la última versión
+    implementation(libs.androidx.lifecycle.runtime.ktx.v270)
+
+    /* Dependencias de Navigation */
+    implementation(libs.androidx.navigation.compose)
+
+    // Dependencias de Compose y Material 3
+    implementation(libs.androidx.core.ktx.v1120)
+    implementation(libs.androidx.lifecycle.runtime.ktx.v290)
+    implementation(libs.androidx.activity.compose.v182)
+    implementation(platform(libs.androidx.compose.bom.v20240201)) // BOM para Compose
+    implementation(libs.ui)
+    implementation(libs.ui.graphics)
+    implementation(libs.ui.tooling.preview)
+    implementation(libs.material3)
 }
