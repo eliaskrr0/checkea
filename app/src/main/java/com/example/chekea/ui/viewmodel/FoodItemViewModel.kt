@@ -45,4 +45,12 @@ class FoodItemViewModel(application: Application) : AndroidViewModel(application
 			repository.insert(newFood)
 		}
 	}
+
+	fun update(foodItem: FoodItem) = viewModelScope.launch(Dispatchers.IO) {
+		repository.updateFood(foodItem)
+	}
+
+	fun delete(foodItem: FoodItem) = viewModelScope.launch(Dispatchers.IO) {
+		repository.deleteFood(foodItem)
+	}
 }

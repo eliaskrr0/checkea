@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.chekea.navigation.AppDestinations
+import com.example.chekea.ui.global.Strings.BUTTON_ADD_FOOD
 import com.example.chekea.ui.theme.ChekeaTheme
 
 @Composable
@@ -30,7 +31,7 @@ fun MainScreen(navController: NavController, modifier: Modifier = Modifier) {
 		Button(onClick = {
 			navController.navigate(AppDestinations.ADD_FOOD_SCREEN)
 		}) {
-			Text("Agregar alimento")
+			Text(BUTTON_ADD_FOOD)
 		}
 
 		Spacer(modifier = Modifier.height(16.dp))

@@ -8,10 +8,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -21,12 +21,22 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.chekea.data.db.FoodItem
+import com.example.chekea.ui.global.Strings.TABLE_COLUMN_ACTIONS
+import com.example.chekea.ui.global.Strings.BUTTON_BACK
+import com.example.chekea.ui.global.Strings.BUTTON_CANCEL
+import com.example.chekea.ui.global.Strings.BUTTON_DELETE_FOOD
+import com.example.chekea.ui.global.Strings.BUTTON_EDIT_FOOD
+import com.example.chekea.ui.global.Strings.TEXT_NAME
+import com.example.chekea.ui.global.Strings.MESSAGE_NO_ITEMS
+import com.example.chekea.ui.global.Strings.OPTION_DELETE
+import com.example.chekea.ui.global.Strings.OPTION_EDIT
+import com.example.chekea.ui.global.Strings.BUTTON_SAVE
+import com.example.chekea.ui.global.Strings.TEXT_NOT_FOUND
 import com.example.chekea.ui.theme.ChekeaTheme
 import com.example.chekea.ui.viewmodel.FoodItemViewModel
 import com.example.chekea.ui.viewmodel.FoodListUIState
 
-val foodTableHeaders = listOf("Nombre del alimento")
-// Si añades más atributos a FoodItem, añádelos aquí, ej: "Categoría", "Fecha de Caducidad"
+val foodTableHeaders = listOf(TEXT_NAME, TABLE_COLUMN_ACTIONS)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -37,16 +47,21 @@ fun ListFoodScreen(
 ) {
 	val uiState by foodItemViewModel.foodListUIState.collectAsState()
 
+	var itemToEdit by remember { mutableStateOf<FoodItem?>(null) }
+	var itemToDelete by remember { mutableStateOf<FoodItem?>(null) }
+	var editText by remember { mutableStateOf("") }
+
 	Scaffold(
 		topBar = {
 			TopAppBar(
 				title = { Text("Lista de Alimentos") },
+				// Opción para volver al menú anterior
 				navigationIcon = {
 					if (navController.previousBackStackEntry != null) {
 						IconButton(onClick = { navController.popBackStack() }) {
 							Icon(
 								imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-								contentDescription = "Volver atrás"
+								contentDescription = BUTTON_BACK
 							)
 						}
 					}
@@ -68,15 +83,73 @@ fun ListFoodScreen(
 			} else if (uiState.itemList.isEmpty()) {
 				// Muestra un mensaje si no hay alimentos
 				Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-					Text("No hay alimentos guardados.")
+					Text(MESSAGE_NO_ITEMS)
 				}
 			} else {
 				// Muestra la tabla de alimentos
 				FoodDataTable(
 					headers = foodTableHeaders,
-					foodItems = uiState.itemList
+					foodItems = uiState.itemList,
+					onEdit = { food ->
+						itemToEdit = food
+						editText = food.name
+					},
+					onDelete = { food ->
+						itemToDelete = food
+					}
 				)
 			}
+		}
+
+		// Opción para editar registro
+		itemToEdit?.let { item ->
+			AlertDialog(
+				onDismissRequest = { itemToEdit = null},
+				title = { Text(BUTTON_EDIT_FOOD) },
+				text = {
+					OutlinedTextField(
+						value = editText,
+						onValueChange = { editText = it },
+						label = { Text(TEXT_NAME) }
+					)
+				},
+				confirmButton = {
+					TextButton(onClick = {
+						foodItemViewModel.update(item.copy(name = editText))
+						itemToEdit = null
+					}) {
+						Text(BUTTON_SAVE)
+					}
+				},
+				dismissButton = {
+					TextButton(onClick = { itemToEdit = null }) {
+						Text(BUTTON_CANCEL)
+					}
+				}
+			)
+
+		}
+
+		// Opción para eliminar
+		itemToDelete?.let { item ->
+			AlertDialog(
+				onDismissRequest = { itemToDelete = null },
+				title = { Text(BUTTON_DELETE_FOOD) },
+				text = { Text("¿Estás seguro de eliminar el alimento ${item.name}") },
+				confirmButton = {
+					TextButton(onClick = {
+						foodItemViewModel.delete(item)
+						itemToDelete = null
+					}) {
+						Text(OPTION_DELETE)
+					}
+				},
+				dismissButton = {
+					TextButton(onClick = { itemToDelete = null }) {
+						Text(BUTTON_CANCEL)
+					}
+				}
+			)
 		}
 	}
 }
@@ -86,6 +159,8 @@ fun ListFoodScreen(
 fun FoodDataTable(
 	headers: List<String>,
 	foodItems: List<FoodItem>,
+	onEdit: (FoodItem) -> Unit,
+	onDelete: (FoodItem) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	LazyColumn(
@@ -109,7 +184,7 @@ fun FoodDataTable(
 			}
 		}
 
-		// Filas de Datos
+		// Filas de datos
 		items(foodItems, key = { foodItem -> foodItem.id ?: foodItem.name }) { foodItem -> // Usa una clave única
 			Row(
 				modifier = Modifier
@@ -117,16 +192,27 @@ fun FoodDataTable(
 					.padding(vertical = 4.dp, horizontal = 8.dp)
 					.height(IntrinsicSize.Min) // Asegura que todas las celdas en la fila tengan la misma altura
 			) {
-				// Itera sobre las cabeceras para determinar qué mostrar y en qué orden
+				// Muestra todos los registros
 				headers.forEach { header ->
-					val cellText = when (header) {
-						"Nombre del alimento" -> foodItem.name
-						// Añade más casos aquí cuando tengas más atributos
-						// "Categoría" -> foodItem.category ?: "N/A"
-						// "Fecha de Caducidad" -> foodItem.expiryDate?.toString() ?: "N/A"
-						else -> "N/D" // No Definido
+					// Muestra los iconos para editar/eliminar un registro
+					if (header == TABLE_COLUMN_ACTIONS) {
+						Row(modifier = Modifier.weight(1f)) {
+							// Editar
+							IconButton(onClick = { onEdit(foodItem) }) {
+								Icon(imageVector = Icons.Filled.Edit, contentDescription = OPTION_EDIT)
+							}
+							// Eliminar
+							IconButton(onClick = { onDelete(foodItem) }) {
+								Icon(imageVector = Icons.Filled.Delete, contentDescription = OPTION_DELETE)
+							}
+						}
+					} else {
+						val cellText = when (header) {
+							TEXT_NAME -> foodItem.name
+							else -> TEXT_NOT_FOUND
+						}
+						FoodTableCell(text = cellText, weight = 1f / headers.size)
 					}
-					FoodTableCell(text = cellText, weight = 1f / headers.size)
 				}
 			}
 			Divider(color = MaterialTheme.colorScheme.outlineVariant, thickness = 0.5.dp) // Divisor entre filas
@@ -185,7 +271,9 @@ fun ListFoodScreenPreview_WithData() {
 fun ListFoodScreenContent(
 	uiState: FoodListUIState,
 	headers: List<String>,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	onEdit: (FoodItem) -> Unit = {},
+	onDelete: (FoodItem) -> Unit = {}
 ) {
 	Column(
 		modifier = modifier
@@ -198,12 +286,14 @@ fun ListFoodScreenContent(
 			}
 		} else if (uiState.itemList.isEmpty()) {
 			Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-				Text("No hay alimentos guardados.")
+				Text(MESSAGE_NO_ITEMS)
 			}
 		} else {
 			FoodDataTable(
 				headers = headers,
-				foodItems = uiState.itemList
+				foodItems = uiState.itemList,
+				onEdit = onEdit,
+				onDelete = onDelete
 			)
 		}
 	}

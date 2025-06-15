@@ -29,6 +29,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.chekea.ui.global.Strings.BUTTON_ADD_FOOD
+import com.example.chekea.ui.global.Strings.BUTTON_BACK
+import com.example.chekea.ui.global.Strings.TEXT_NAME
+import com.example.chekea.ui.global.Strings.BUTTON_SAVE
 import com.example.chekea.ui.theme.ChekeaTheme
 import com.example.chekea.ui.viewmodel.FoodItemViewModel
 
@@ -59,11 +63,11 @@ fun AddFoodScreen(
 			) {
 				Icon(
 					imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-					contentDescription = "Volver atrás"
+					contentDescription = BUTTON_BACK
 				)
 			}
 			Text(
-				text = "Agregar Alimento",
+				text = BUTTON_ADD_FOOD,
 				style = MaterialTheme.typography.headlineSmall,
 				modifier = Modifier.align(Alignment.Center) // Centra el título del Box
 			)
@@ -83,7 +87,7 @@ fun AddFoodScreen(
 					foodName = it
 					if (showError) showError = false
 				},
-				label = { Text("Nombre del alimento") },
+				label = { Text(TEXT_NAME) },
 				singleLine = true,
 				modifier = Modifier.fillMaxWidth(),
 				isError = showError
@@ -113,7 +117,7 @@ fun AddFoodScreen(
 			},
 			modifier = Modifier.fillMaxWidth()
 		) {
-			Text("Guardar")
+			Text(BUTTON_SAVE)
 		}
 	}
 }
@@ -139,7 +143,7 @@ fun AddFoodScreenWithErrorPreview() {
 			horizontalAlignment = Alignment.CenterHorizontally
 		) {
 			Text(
-				text = "Agregar Alimento",
+				text = BUTTON_ADD_FOOD,
 				style = MaterialTheme.typography.headlineSmall
 			)
 			Spacer(modifier = Modifier.height(24.dp))
@@ -150,7 +154,7 @@ fun AddFoodScreenWithErrorPreview() {
 			OutlinedTextField(
 				value = foodNamePreview,
 				onValueChange = { foodNamePreview = it },
-				label = { Text("Nombre del alimento") },
+				label = { Text(TEXT_NAME) },
 				singleLine = true,
 				modifier = Modifier.fillMaxWidth(),
 				isError = showErrorPreview
@@ -168,7 +172,7 @@ fun AddFoodScreenWithErrorPreview() {
 				onClick = { /* No action */ },
 				modifier = Modifier.fillMaxWidth()
 			) {
-				Text("Guardar")
+				Text(BUTTON_SAVE)
 			}
 		}
 	}

@@ -1,4 +1,4 @@
-package com.example.chekea.data.repository // O el paquete que elijas
+package com.example.chekea.data.repository
 
 import com.example.chekea.data.db.FoodDAO
 import com.example.chekea.data.db.FoodItem
@@ -14,5 +14,13 @@ class FoodRepository(private val foodDAO: FoodDAO) {
 
 	suspend fun getFoodItemByName(name: String): FoodItem? {
 		return foodDAO.getFoodItemByName(name);
+	}
+
+	suspend fun updateFood(foodItem: FoodItem) {
+		foodDAO.updateFood(foodItem)
+	}
+
+	suspend fun deleteFood(foodItem: FoodItem) {
+		foodDAO.deleteFood(foodItem)
 	}
 }

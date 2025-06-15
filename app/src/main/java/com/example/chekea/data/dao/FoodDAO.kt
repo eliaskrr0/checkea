@@ -1,10 +1,12 @@
-package com.example.chekea.data.db // O el paquete que elijas
+package com.example.chekea.data.db
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import kotlinx.coroutines.flow.Flow // Para observabilidad
+import androidx.room.Update
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FoodDAO {
@@ -17,5 +19,9 @@ interface FoodDAO {
 
 	@Query("SELECT * FROM food_items WHERE name = :name")
 	suspend fun getFoodItemByName(name: String): FoodItem?
+
+	@Update	suspend fun updateFood(foodItem: FoodItem)
+
+	@Delete	suspend fun deleteFood(foodItem: FoodItem)
 
 }
